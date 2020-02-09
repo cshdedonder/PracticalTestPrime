@@ -83,7 +83,6 @@ val freeTiles: List<TileGraph> = listOf(
 @UseExperimental(ExperimentalTime::class)
 fun testInitialConfiguration() {
     val board = PuzzleBoard(defaultConfiguration)
-    // TODO rerun when edge problem is solved
     fixedTiles.forEach { (p, t) ->
         board.addTile(p, t)
     }
@@ -99,10 +98,12 @@ fun testInitialConfiguration() {
     }
     println("Checked and added ${freeTiles.size} tiles in ${time.duration.inMilliseconds}ms.")
     println("Board size: ${board.size}")
+    println("Board graph size: ${board.vertexSet().size}")
+    println("Board graph edges size: ${board.edgeSet().size}")
     with(measureTimedValue {
         board.runSelfCheck()
     }) {
-        println("Acyclic: $value in ${duration.inMilliseconds}ms.")
+        println("Acyclic check: $value in ${duration.inMilliseconds}ms.")
     }
 }
 

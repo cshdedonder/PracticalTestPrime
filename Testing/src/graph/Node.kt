@@ -1,12 +1,12 @@
 package graph
 
 
-open class Node {
+open class Node(val name: String = "Node") {
 
     protected val id: Int = ++counter
 
     override fun toString(): String {
-        return "Node #$id"
+        return "$name #$id"
     }
 
     companion object {

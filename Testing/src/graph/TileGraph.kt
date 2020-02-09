@@ -7,7 +7,7 @@ import org.jgrapht.graph.DefaultEdge as Edge
 abstract class TileGraph : SimpleDirectedGraph<Node, Edge>(Edge::class.java) {
 
     val externalNodeMap: Map<Compass16, Node> = EnumMap<Compass16, Node>(Compass16::class.java).apply {
-        Compass16.values().forEach { put(it, Node()) }
+        Compass16.values().forEach { put(it, Node("Node@$it")) }
     }
 
     init {

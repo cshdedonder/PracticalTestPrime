@@ -3,7 +3,6 @@ package graph
 import org.jgrapht.Graphs
 import org.jgrapht.alg.cycle.CycleDetector
 import org.jgrapht.graph.SimpleDirectedGraph
-import org.jgrapht.traverse.DepthFirstIterator
 import org.jgrapht.graph.DefaultEdge as Edge
 
 class PuzzleBoard(private val configuration: Configuration) : SimpleDirectedGraph<Node, Edge>(Edge::class.java) {
@@ -11,9 +10,20 @@ class PuzzleBoard(private val configuration: Configuration) : SimpleDirectedGrap
     private val nodeMap: Map<NodePosition, Node> = HashMap<NodePosition, Node>().apply {
         configuration.positionIterator().forEachRemaining { p ->
             Compass16.values().forEach { c ->
-                val node = Node()
+                val node = Node("Node@(${p.x}, ${p.y}, $c)")
                 addVertex(node)
                 put(NodePosition(p, c), node)
+            }
+        }
+    }
+
+    // CONNECT OVERLAPPING NODE POSITIONS
+    init {
+        val positionMap: Map<Position, NodePosition> = nodeMap.keys.associateBy { it.position }
+        configuration.positionIterator().forEachRemaining { p ->
+            val p1 = p.cardinalNeighbor(configuration, by = Compass4.EAST)
+            p1?.let {
+
             }
         }
     }
@@ -30,12 +40,11 @@ class PuzzleBoard(private val configuration: Configuration) : SimpleDirectedGrap
     }
 
     private fun checkIfValid(tile1: TileGraph, tile2: TileGraph, by: Compass4): Boolean {
-        // FIXME check per node if incoming and outgoing number of edges is the same
-        return Compass16.values().filter { it.compass4 == by }.map {
-            it to tile1.degreeOf(tile1.externalNodeMap.getValue(it))
-        }.toMap() == Compass16.values().filter { it.compass4 == by.rotate(RotationAngle.PI) }.map {
-            it.opposite to tile2.degreeOf(tile2.externalNodeMap.getValue(it))
-        }.toMap()
+        return Compass16.values().filter { it.compass4 == by }.all {
+            val n1: Node = tile1.externalNodeMap.getValue(it)
+            val n2: Node = tile2.externalNodeMap.getValue(it.opposite)
+            tile1.inDegreeOf(n1) == tile2.outDegreeOf(n2) && tile1.outDegreeOf(n1) == tile2.inDegreeOf(n2)
+        }
     }
 
     fun runSelfCheck(): Boolean {
@@ -45,11 +54,11 @@ class PuzzleBoard(private val configuration: Configuration) : SimpleDirectedGrap
             return false
         // ELECTRICAL PATH
         val node = vertexSet().find { it is InputNode }!!
-        // FIXME
-        val dfs = DepthFirstIterator(this, node)
+        // TODO ELECTRICAL PATH
+        /*val dfs = DepthFirstIterator(this, node)
         dfs.forEachRemaining {
             println(it)
-        }
+        }*/
         return true
     }
 
@@ -58,12 +67,32 @@ class PuzzleBoard(private val configuration: Configuration) : SimpleDirectedGrap
             throw IllegalArgumentException("$position is not clear.")
         tileMap[position] = tile
         Graphs.addGraph(this, tile)
-        // FIXME edges need to be added with correct direction
-        Compass16.values().map { NodePosition(position, it) }.forEach {
-            if (tile.outDegreeOf(tile.externalNodeMap.getValue(it.compass16.opposite)) > 0)
-                addEdge(nodeMap.getValue(it), tile.externalNodeMap.getValue(it.compass16.opposite))
-            else
-                addEdge(tile.externalNodeMap.getValue(it.compass16.opposite), nodeMap.getValue(it))
+        tile.externalNodeMap.forEach { (c, n) ->
+            val n1: Node = nodeMap.getValue(NodePosition(position, c))
+            when {
+                tile.inDegreeOf(n) == 1 -> {
+                    addEdge(n, n1)
+                    position.cardinalNeighbor(configuration, c.compass4)?.let {
+                        if (it in tileMap.keys) {
+                            val n2: Node = nodeMap.getValue(NodePosition(it, c.opposite))
+                            addEdge(n1, n2)
+                            val n3: Node = tileMap.getValue(it).externalNodeMap.getValue(c.opposite)
+                            addEdge(n2, n3)
+                        }
+                    }
+                }
+                tile.outDegreeOf(n) == 1 -> {
+                    addEdge(n1, n)
+                    position.cardinalNeighbor(configuration, c.compass4)?.let {
+                        if (it in tileMap.keys) {
+                            val n2: Node = nodeMap.getValue(NodePosition(it, c.opposite))
+                            addEdge(n2, n1)
+                            val n3: Node = tileMap.getValue(it).externalNodeMap.getValue(c.opposite)
+                            addEdge(n3, n2)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -71,6 +100,7 @@ class PuzzleBoard(private val configuration: Configuration) : SimpleDirectedGrap
         if (tile !in tileMap.values)
             return false
         removeAllVertices(tile.vertexSet())
+        // TODO REMOVE ADDED EDGES FROM ADDING THE TILE
         return true
     }
 
