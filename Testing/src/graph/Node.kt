@@ -1,5 +1,7 @@
 package graph
 
+import java.io.Serializable
+
 
 open class Node(val name: String = "Node") {
 
@@ -46,7 +48,7 @@ class UnaryGatedNode(val gateFunction: UnaryGateFunction) : GatedNode() {
     }
 }
 
-interface BinaryGateFunction {
+interface BinaryGateFunction : Serializable {
     fun calculate(input1: Boolean, input2: Boolean): Boolean
 }
 

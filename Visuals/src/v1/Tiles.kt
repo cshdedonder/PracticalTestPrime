@@ -1,7 +1,9 @@
-import CompassRose16.*
+package v1
+
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PConstants.HALF_PI
+import v1.CompassRose16.*
 import kotlin.math.PI
 
 data class Coordinate(val x: Float, val y: Float)

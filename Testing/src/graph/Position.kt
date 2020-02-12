@@ -1,6 +1,7 @@
 package graph
 
 import graph.Compass4.*
+import java.io.Serializable
 
 data class Configuration(val width: Int, val height: Int) {
     fun positionIterator(start: Position = Position(0, 0)): Iterator<Position> = object : Iterator<Position> {
@@ -22,7 +23,7 @@ data class Configuration(val width: Int, val height: Int) {
 
 val defaultConfiguration = Configuration(5, 9)
 
-data class Position(val x: Int, val y: Int) {
+data class Position(val x: Int, val y: Int) : Serializable {
     fun next(configuration: Configuration): Position? = when {
         (x in 0 until (configuration.width - 1)) -> Position(x + 1, y)
         (y in 0 until (configuration.height - 1)) -> Position(0, y + 1)
@@ -36,5 +37,14 @@ data class Position(val x: Int, val y: Int) {
         EAST -> Position(x + 1, y).takeIf { it in configuration }
         SOUTH -> Position(x, y + 1).takeIf { it in configuration }
         WEST -> Position(x - 1, y).takeIf { it in configuration }
+    }
+
+    fun iterator(configuration: Configuration): Iterator<Position> = object : Iterator<Position> {
+
+        private var currentPosition: Position = this@Position
+
+        override fun hasNext(): Boolean = currentPosition.next(configuration) != null
+
+        override fun next(): Position = currentPosition.next(configuration)!!.also { currentPosition = it }
     }
 }

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="pdf">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../Java Third-Party Libraries/processing-3.5.4/modes/java/libraries/pdf/library/pdf.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

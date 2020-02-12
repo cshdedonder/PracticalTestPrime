@@ -2,6 +2,8 @@ package graph
 
 import graph.Compass16.*
 import graph.LogicGate.*
+import java.io.*
+import kotlin.system.measureTimeMillis
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
 
@@ -107,6 +109,125 @@ fun testInitialConfiguration() {
     }
 }
 
+fun testRemoval() {
+    val board = PuzzleBoard(defaultConfiguration)
+    fixedTiles.forEach { (p, t) ->
+        board.addTile(p, t)
+    }
+    val oldBoard = board.clone() as PuzzleBoard
+    println("Initialized board:")
+    println("Board size: ${board.size}")
+    println("Board graph size: ${board.vertexSet().size}")
+    println("Board graph edges size: ${board.edgeSet().size}")
+    board.addTile(Position(0, 1), freeTiles[0])
+    println("Board with 1 tile added:")
+    println("Board size: ${board.size}")
+    println("Board graph size: ${board.vertexSet().size}")
+    println("Board graph edges size: ${board.edgeSet().size}")
+    board.remove(Position(0, 1))
+    println("Board with tile removed:")
+    println("Board size: ${board.size}")
+    println("Board graph size: ${board.vertexSet().size}")
+    println("Board graph edges size: ${board.edgeSet().size}")
+    println("\nRunning equals: ${oldBoard == board}")
+}
+
+fun testRemovalAll() {
+    val board = PuzzleBoard(defaultConfiguration)
+    fixedTiles.forEach { (p, t) ->
+        board.addTile(p, t)
+    }
+    var position = Position(0, 1)
+    freeTiles.forEach {
+        if (board.checkIfValid(position, it))
+            board.addTile(position, it)
+        else
+            println("Invalid tile!")
+        position = position.next(defaultConfiguration)!!
+    }
+    println("Board build ...")
+    val time: Long = measureTimeMillis {
+        val p = Position(0, 0)
+        board.remove(p)
+        p.iterator(defaultConfiguration).forEachRemaining {
+            board.remove(it)
+        }
+    }
+    println("All tiles removed in ${time}ms.")
+}
+
+fun testPermutations() {
+    val board = PuzzleBoard(defaultConfiguration)
+    fixedTiles.forEach { (p, t) ->
+        board.addTile(p, t)
+    }
+    val position = Position(0, 1)
+    val collector: MutableSet<BoardInformation> = HashSet()
+    val tiles = MaskingSet(freeTiles)
+    testPermutation(board, position, tiles, collector, System.currentTimeMillis())
+    println(collector.size)
+    println("Writing set ...")
+    ObjectOutputStream(FileOutputStream("set.ser")).writeObject(collector)
+}
+
+private fun Position.next() = next(defaultConfiguration)!!
+
+var counter: Int = 1
+
+fun testPermutation(board: PuzzleBoard, position: Position, tiles: MaskingSet<TileGraph>, collector: MutableCollection<BoardInformation>, startTime: Long) {
+    if (counter % 1000000 == 0)
+        println("Running iteration ${counter / 1000000}M.")
+    counter++
+    if (tiles.isEmpty()) {
+        if (board.runSelfCheck()) {
+            val info = board.information
+            if (collector.add(info)) {
+                println("Found new valid board at #$counter after ${System.currentTimeMillis() - startTime}ms.")
+                ObjectOutputStream(FileOutputStream("board-$counter.ser")).writeObject(info)
+            }
+        }
+        return
+    }
+    for (tile: TileGraph in tiles) {
+        if (board.checkIfValid(position, tile)) {
+            board.addTile(position, tile)
+            tiles.mask(tile)
+            testPermutation(board, position.next(), tiles, collector, startTime)
+            tiles.unmask(tile)
+            board.remove(position)
+        }
+    }
+}
+
+val PuzzleBoard.information: BoardInformation
+    get() = BoardInformation(tileMap.mapValues { it.value.information })
+
+data class BoardInformation(val informationMap: Map<Position, Information>) : Information, Serializable
+
+fun testSerialize() {
+    val board = PuzzleBoard(defaultConfiguration)
+    fixedTiles.forEach { (p, t) ->
+        board.addTile(p, t)
+    }
+    var position = Position(0, 1)
+    freeTiles.forEach {
+        if (board.checkIfValid(position, it))
+            board.addTile(position, it)
+        else
+            println("Invalid tile!")
+        position = position.next(defaultConfiguration)!!
+    }
+    ObjectOutputStream(FileOutputStream("test.ser")).writeObject(board.information)
+    println(ObjectInputStream(FileInputStream("test.ser")).readObject() as BoardInformation)
+}
+
 fun main() {
-    testInitialConfiguration()
+    /*println("******* Initial Configuration")
+     testInitialConfiguration()
+     println("\n******* Removal")
+     testRemoval()
+     println("\n******* Removal All")
+     testRemovalAll()*/
+    testPermutations()
+    //testSerialize()
 }

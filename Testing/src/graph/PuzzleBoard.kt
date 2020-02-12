@@ -17,26 +17,17 @@ class PuzzleBoard(private val configuration: Configuration) : SimpleDirectedGrap
         }
     }
 
-    // CONNECT OVERLAPPING NODE POSITIONS
-    init {
-        val positionMap: Map<Position, NodePosition> = nodeMap.keys.associateBy { it.position }
-        configuration.positionIterator().forEachRemaining { p ->
-            val p1 = p.cardinalNeighbor(configuration, by = Compass4.EAST)
-            p1?.let {
-
-            }
-        }
-    }
-
-    private val tileMap: MutableMap<Position, TileGraph> = HashMap()
+    private val _tileMap: MutableMap<Position, TileGraph> = HashMap()
+    val tileMap: Map<Position, TileGraph>
+        get() = HashMap(_tileMap)
 
     val size: Int
-        get() = tileMap.size
+        get() = _tileMap.size
 
     fun checkIfValid(position: Position, tile: TileGraph): Boolean {
-        if (position in tileMap.keys)
+        if (position in _tileMap.keys)
             return false
-        return position.cardinalNeighbors(configuration).filter { it.second in tileMap.keys }.all { checkIfValid(tile, tileMap.getValue(it.second), by = it.first) }
+        return position.cardinalNeighbors(configuration).filter { it.second in _tileMap.keys }.all { checkIfValid(tile, _tileMap.getValue(it.second), by = it.first) }
     }
 
     private fun checkIfValid(tile1: TileGraph, tile2: TileGraph, by: Compass4): Boolean {
@@ -53,19 +44,17 @@ class PuzzleBoard(private val configuration: Configuration) : SimpleDirectedGrap
         if (cycleDetection.detectCycles())
             return false
         // ELECTRICAL PATH
-        val node = vertexSet().find { it is InputNode }!!
-        // TODO ELECTRICAL PATH
-        /*val dfs = DepthFirstIterator(this, node)
-        dfs.forEachRemaining {
-            println(it)
-        }*/
+        val flowDetector: FlowDetector = FlowDetector(this)
+        if (!flowDetector.checkFlow(vertexSet().filterIsInstance<OutputNode>())) {
+            return false
+        }
         return true
     }
 
     fun addTile(position: Position, tile: TileGraph) {
-        if (position in tileMap.keys)
+        if (position in _tileMap.keys)
             throw IllegalArgumentException("$position is not clear.")
-        tileMap[position] = tile
+        _tileMap[position] = tile
         Graphs.addGraph(this, tile)
         tile.externalNodeMap.forEach { (c, n) ->
             val n1: Node = nodeMap.getValue(NodePosition(position, c))
@@ -73,10 +62,10 @@ class PuzzleBoard(private val configuration: Configuration) : SimpleDirectedGrap
                 tile.inDegreeOf(n) == 1 -> {
                     addEdge(n, n1)
                     position.cardinalNeighbor(configuration, c.compass4)?.let {
-                        if (it in tileMap.keys) {
+                        if (it in _tileMap.keys) {
                             val n2: Node = nodeMap.getValue(NodePosition(it, c.opposite))
                             addEdge(n1, n2)
-                            val n3: Node = tileMap.getValue(it).externalNodeMap.getValue(c.opposite)
+                            val n3: Node = _tileMap.getValue(it).externalNodeMap.getValue(c.opposite)
                             addEdge(n2, n3)
                         }
                     }
@@ -84,10 +73,10 @@ class PuzzleBoard(private val configuration: Configuration) : SimpleDirectedGrap
                 tile.outDegreeOf(n) == 1 -> {
                     addEdge(n1, n)
                     position.cardinalNeighbor(configuration, c.compass4)?.let {
-                        if (it in tileMap.keys) {
+                        if (it in _tileMap.keys) {
                             val n2: Node = nodeMap.getValue(NodePosition(it, c.opposite))
                             addEdge(n2, n1)
-                            val n3: Node = tileMap.getValue(it).externalNodeMap.getValue(c.opposite)
+                            val n3: Node = _tileMap.getValue(it).externalNodeMap.getValue(c.opposite)
                             addEdge(n3, n2)
                         }
                     }
@@ -96,15 +85,17 @@ class PuzzleBoard(private val configuration: Configuration) : SimpleDirectedGrap
         }
     }
 
-    private fun removeTile(tile: TileGraph): Boolean {
-        if (tile !in tileMap.values)
-            return false
-        removeAllVertices(tile.vertexSet())
-        // TODO REMOVE ADDED EDGES FROM ADDING THE TILE
-        return true
+    fun remove(position: Position): Boolean {
+        _tileMap[position]?.let {
+            _tileMap.remove(position)
+            removeAllVertices(it.vertexSet())
+            Compass16.values().map { c -> nodeMap.getValue(NodePosition(position, c)) }.forEach { node ->
+                removeAllEdges(edgesOf(node))
+            }
+            return true
+        }
+        return false
     }
-
-    fun remove(position: Position): TileGraph? = tileMap.remove(position)?.also { removeTile(it) }
 }
 
 data class NodePosition(val position: Position, val compass16: Compass16)

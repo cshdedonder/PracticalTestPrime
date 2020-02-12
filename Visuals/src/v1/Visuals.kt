@@ -1,6 +1,7 @@
-import CompassRose16.*
+package v1
+
 import processing.core.PApplet
-import processing.core.PConstants
+import v1.CompassRose16.*
 
 interface Drawable {
     fun draw(parent: PApplet)
@@ -22,7 +23,7 @@ class Visuals : PApplet() {
             connector(3, 6, NNW to ENE, WNW to SSW, WSW to ESE)
     )
 
-    private fun connector(x: Int, y: Int, vararg connections: Pair<CompassRose16, CompassRose16>) = ConnectorTile(Coordinate(x*3f, y*3f), *connections)
+    private fun connector(x: Int, y: Int, vararg connections: Pair<CompassRose16, CompassRose16>) = ConnectorTile(Coordinate(x * 3f, y * 3f), *connections)
 
     override fun settings() {
         size(600, 1080)
