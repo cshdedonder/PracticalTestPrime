@@ -1,5 +1,7 @@
 package graph
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import graph.Compass16.*
 import graph.LogicGate.*
 import java.io.*
@@ -34,7 +36,9 @@ val fixedTiles: Collection<Pair<Position, TileGraph>> = listOf(
         output(1, 8, false, NNW),
         output(2, 8, false, NNE),
         output(3, 8, true, NNE),
-        output(4, 8, true, NNE)
+        output(4, 8, true, NNE)/*,
+        Position(0, 2) to connector(NNW to SSW, ENE to SSE),
+        Position(4, 6) to binarygate(NAND, WNW, NNE, WSW, SSE)*/
 )
 
 val freeTiles: List<TileGraph> = listOf(
@@ -174,6 +178,8 @@ private fun Position.next() = next(defaultConfiguration)!!
 
 var counter: Int = 1
 
+val gson: Gson = GsonBuilder().setPrettyPrinting().create()
+
 fun testPermutation(board: PuzzleBoard, position: Position, tiles: MaskingSet<TileGraph>, collector: MutableCollection<BoardInformation>, startTime: Long) {
     if (counter % 1000000 == 0)
         println("Running iteration ${counter / 1000000}M.")
@@ -183,7 +189,10 @@ fun testPermutation(board: PuzzleBoard, position: Position, tiles: MaskingSet<Ti
             val info = board.information
             if (collector.add(info)) {
                 println("Found new valid board at #$counter after ${System.currentTimeMillis() - startTime}ms.")
-                ObjectOutputStream(FileOutputStream("board-$counter.ser")).writeObject(info)
+                val writer = FileWriter("board-$counter.json")
+                gson.toJson(info, writer)
+                writer.flush()
+                writer.close()
             }
         }
         return
@@ -200,9 +209,9 @@ fun testPermutation(board: PuzzleBoard, position: Position, tiles: MaskingSet<Ti
 }
 
 val PuzzleBoard.information: BoardInformation
-    get() = BoardInformation(tileMap.mapValues { it.value.information })
+    get() = BoardInformation(tileMap.map { it.key to it.value.information }.toSet())
 
-data class BoardInformation(val informationMap: Map<Position, Information>) : Information, Serializable
+data class BoardInformation(val informationMap: Set<Pair<Position, Information>>) : Information, Serializable
 
 fun testSerialize() {
     val board = PuzzleBoard(defaultConfiguration)

@@ -1,0 +1,690 @@
+{
+  "informationMap": [
+    {
+      "first": {
+        "x": 0,
+        "y": 0
+      },
+      "second": {
+        "state": true,
+        "outputs": [
+          "SSW",
+          "SSE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 2,
+        "y": 2
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "WNW",
+            "to": "SSW"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 4,
+        "y": 4
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNE",
+            "to": "SSE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 0,
+        "y": 1
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNW",
+            "to": "SSW"
+          },
+          {
+            "from": "NNE",
+            "to": "ENE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 2,
+        "y": 3
+      },
+      "second": {
+        "functionDescription": "OR",
+        "input1": "NNW",
+        "input2": "ENE",
+        "outputs": [
+          "SSW",
+          "SSE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 4,
+        "y": 5
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNE",
+            "to": "SSE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 0,
+        "y": 2
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNW",
+            "to": "SSW"
+          },
+          {
+            "from": "ENE",
+            "to": "SSE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 2,
+        "y": 4
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNW",
+            "to": "WNW"
+          },
+          {
+            "from": "NNE",
+            "to": "ENE"
+          },
+          {
+            "from": "ESE",
+            "to": "SSW"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 4,
+        "y": 6
+      },
+      "second": {
+        "functionDescription": "XOR",
+        "input1": "WNW",
+        "input2": "NNE",
+        "outputs": [
+          "WSW",
+          "SSE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 0,
+        "y": 3
+      },
+      "second": {
+        "functionDescription": "XNOR",
+        "input1": "NNW",
+        "input2": "NNE",
+        "outputs": [
+          "SSW",
+          "SSE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 2,
+        "y": 5
+      },
+      "second": {
+        "functionDescription": "AND",
+        "input1": "NNW",
+        "input2": "ENE",
+        "outputs": [
+          "SSW",
+          "ESE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 4,
+        "y": 7
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNE",
+            "to": "SSE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 4,
+        "y": 8
+      },
+      "second": {
+        "expectedState": true,
+        "inputs": [
+          "NNE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 0,
+        "y": 4
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNW",
+            "to": "SSW"
+          },
+          {
+            "from": "NNE",
+            "to": "ENE"
+          },
+          {
+            "from": "ESE",
+            "to": "SSE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 2,
+        "y": 6
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "WNW",
+            "to": "SSE"
+          },
+          {
+            "from": "NNW",
+            "to": "ENE"
+          },
+          {
+            "from": "ESE",
+            "to": "SSW"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 0,
+        "y": 5
+      },
+      "second": {
+        "functionDescription": "XNOR",
+        "input1": "NNW",
+        "input2": "NNE",
+        "outputs": [
+          "SSW",
+          "SSE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 2,
+        "y": 7
+      },
+      "second": {
+        "functionDescription": "NOR",
+        "input1": "NNW",
+        "input2": "NNE",
+        "outputs": [
+          "SSE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 2,
+        "y": 8
+      },
+      "second": {
+        "expectedState": false,
+        "inputs": [
+          "NNE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 0,
+        "y": 6
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNW",
+            "to": "SSE"
+          },
+          {
+            "from": "NNE",
+            "to": "ENE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 0,
+        "y": 7
+      },
+      "second": {
+        "functionDescription": "NOT",
+        "input": "NNE",
+        "outputs": [
+          "SSW"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 0,
+        "y": 8
+      },
+      "second": {
+        "expectedState": true,
+        "inputs": [
+          "NNW"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 3,
+        "y": 0
+      },
+      "second": {
+        "state": false,
+        "outputs": [
+          "SSW"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 3,
+        "y": 1
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "WNW",
+            "to": "SSW"
+          },
+          {
+            "from": "NNW",
+            "to": "SSE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 1,
+        "y": 0
+      },
+      "second": {
+        "state": true,
+        "outputs": [
+          "SSE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 3,
+        "y": 2
+      },
+      "second": {
+        "functionDescription": "OR",
+        "input1": "NNW",
+        "input2": "NNE",
+        "outputs": [
+          "SSW",
+          "ESE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 1,
+        "y": 1
+      },
+      "second": {
+        "functionDescription": "NAND",
+        "input1": "WNW",
+        "input2": "NNE",
+        "outputs": [
+          "SSW",
+          "SSE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 3,
+        "y": 3
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNW",
+            "to": "WNW"
+          },
+          {
+            "from": "ESE",
+            "to": "SSE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 1,
+        "y": 2
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNW",
+            "to": "WNW"
+          },
+          {
+            "from": "NNE",
+            "to": "ENE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 3,
+        "y": 4
+      },
+      "second": {
+        "functionDescription": "NAND",
+        "input1": "WNW",
+        "input2": "NNE",
+        "outputs": [
+          "WSW",
+          "SSE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 1,
+        "y": 3
+      },
+      "second": {
+        "connections": []
+      }
+    },
+    {
+      "first": {
+        "x": 3,
+        "y": 5
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNE",
+            "to": "WNW"
+          },
+          {
+            "from": "WSW",
+            "to": "SSW"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 1,
+        "y": 4
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "WNW",
+            "to": "SSE"
+          },
+          {
+            "from": "ENE",
+            "to": "WSW"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 3,
+        "y": 6
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNW",
+            "to": "ENE"
+          },
+          {
+            "from": "WNW",
+            "to": "SSW"
+          },
+          {
+            "from": "ESE",
+            "to": "WSW"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 1,
+        "y": 5
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNE",
+            "to": "SSE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 3,
+        "y": 7
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNW",
+            "to": "SSE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 3,
+        "y": 8
+      },
+      "second": {
+        "expectedState": true,
+        "inputs": [
+          "NNE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 1,
+        "y": 6
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "WNW",
+            "to": "SSE"
+          },
+          {
+            "from": "NNE",
+            "to": "ENE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 1,
+        "y": 7
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNE",
+            "to": "SSW"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 1,
+        "y": 8
+      },
+      "second": {
+        "expectedState": false,
+        "inputs": [
+          "NNW"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 4,
+        "y": 0
+      },
+      "second": {
+        "state": true,
+        "outputs": [
+          "SSW"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 4,
+        "y": 1
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNW",
+            "to": "SSE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 2,
+        "y": 0
+      },
+      "second": {
+        "state": true,
+        "outputs": [
+          "SSE"
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 4,
+        "y": 2
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "WSW",
+            "to": "SSW"
+          },
+          {
+            "from": "NNE",
+            "to": "SSE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 2,
+        "y": 1
+      },
+      "second": {
+        "connections": [
+          {
+            "from": "NNE",
+            "to": "ENE"
+          }
+        ]
+      }
+    },
+    {
+      "first": {
+        "x": 4,
+        "y": 3
+      },
+      "second": {
+        "functionDescription": "NOR",
+        "input1": "NNW",
+        "input2": "NNE",
+        "outputs": [
+          "WSW",
+          "SSE"
+        ]
+      }
+    }
+  ]
+}

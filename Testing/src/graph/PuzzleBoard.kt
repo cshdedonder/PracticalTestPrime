@@ -24,6 +24,8 @@ class PuzzleBoard(private val configuration: Configuration) : SimpleDirectedGrap
     val size: Int
         get() = _tileMap.size
 
+    operator fun contains(position: Position): Boolean = position in _tileMap.keys
+
     fun checkIfValid(position: Position, tile: TileGraph): Boolean {
         if (position in _tileMap.keys)
             return false
