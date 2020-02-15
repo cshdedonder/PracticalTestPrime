@@ -14,48 +14,33 @@ interface Drawable {
     fun draw(parent: PApplet)
 }
 
-inline fun convert1(crossinline f: (Float) -> Unit): (Number) -> Unit = { p1 -> f(p1.toFloat()) }
-inline fun convert2(crossinline f: (Float, Float) -> Unit): (Number, Number) -> Unit = { p1, p2 -> f(p1.toFloat(), p2.toFloat()) }
-inline fun convert3(crossinline f: (Float, Float, Float) -> Unit): (Number, Number, Number) -> Unit = { p1, p2, p3 -> f(p1.toFloat(), p2.toFloat(), p3.toFloat()) }
-inline fun convert4(crossinline f: (Float, Float, Float, Float) -> Unit): (Number, Number, Number, Number) -> Unit = { p1, p2, p3, p4 -> f(p1.toFloat(), p2.toFloat(), p3.toFloat(), p4.toFloat()) }
+private const val BASE_WIDTH: Float = 1500f
+private const val BASE_HEIGHT: Float = 2700f
+private const val WIDTH_OFFSET: Float = 100f
+private const val HEIGHT_OFFSET: Float = 100f
+private const val WIDTH: Float = BASE_WIDTH + 2 * WIDTH_OFFSET
+private const val HEIGHT: Float = BASE_HEIGHT + 2 * HEIGHT_OFFSET
 
-fun PApplet.translate(x: Number, y: Number) = convert2(::translate)(x, y)
-fun PApplet.rect(x: Number, y: Number, w: Number, h: Number) = convert4(::rect)(x, y, w, h)
-
-private const val BASE_WIDTH: Int = 1500
-private const val BASE_HEIGHT: Int = 2700
-private const val WIDTH_OFFSET: Int = 100
-private const val HEIGHT_OFFSET: Int = 100
-private const val WIDTH: Int = BASE_WIDTH + 2 * WIDTH_OFFSET
-private const val HEIGHT: Int = BASE_HEIGHT + 2 * HEIGHT_OFFSET
-
-private const val BASE_TILE_WIDTH: Int = 300
-private const val BASE_TILE_HEIGHT: Int = 300
-private const val TILE_WIDTH_OFFSET: Int = 10
-private const val TILE_HEIGHT_OFFSET: Int = 10
-private const val TILE_WIDTH: Int = BASE_TILE_WIDTH - 2 * TILE_WIDTH_OFFSET
-private const val TILE_HEIGHT: Int = BASE_TILE_HEIGHT - 2 * TILE_HEIGHT_OFFSET
+private const val BASE_TILE_WIDTH: Float = 300f
+private const val BASE_TILE_HEIGHT: Float = 300f
+private const val TILE_WIDTH_OFFSET: Float = 10f
+private const val TILE_HEIGHT_OFFSET: Float = 10f
+private const val TILE_WIDTH: Float = BASE_TILE_WIDTH - 2 * TILE_WIDTH_OFFSET
+private const val TILE_HEIGHT: Float = BASE_TILE_HEIGHT - 2 * TILE_HEIGHT_OFFSET
 
 
 object Main : PApplet() {
-
-    private const val display: Boolean = false
 
     private val fileName: String = "render-${System.currentTimeMillis()}.pdf"
 
     private val tiles: MutableList<Drawable> = ArrayList()
 
     override fun settings() {
-        if (display)
-            size(WIDTH, HEIGHT)
-        else
-            size(WIDTH, HEIGHT, PDF, fileName)
+        size(WIDTH.toInt(), HEIGHT.toInt(), PDF, fileName)
     }
 
     override fun setup() {
-        // LOAD TILES
         defaultBoardInformation.informationMap.map { it.value.toTile(it.key) }.forEach { tiles.add(it) }
-        // SETUP DRAW ENV
         noLoop()
     }
 
@@ -64,12 +49,17 @@ object Main : PApplet() {
         println("Starting ...")
 
         background(255)
+
         translate(WIDTH_OFFSET, HEIGHT_OFFSET)
         tiles.forEach { it.draw(this) }
 
+        translate(5 * BASE_TILE_WIDTH, 9 * BASE_TILE_HEIGHT)
+        fill(0)
+        textAlign(PConstants.RIGHT, PConstants.TOP)
+        text("© Cedric De Donder, 2020", -30f, 20f)
+
         println("Finished.")
-        if (!display)
-            exit()
+        exit()
     }
 
     fun run() = runSketch()
@@ -92,15 +82,18 @@ inline fun PApplet.layer(init: PApplet.() -> Unit) {
     popMatrix()
 }
 
-data class Point(val x: Float, val y: Float)
-
 /**
  * Assumes ([x1], [y1]) is bottom control point and vertical switch.
  */
-fun PApplet.bezierSwitch(x1: Number, y1: Number, x2: Number, y2: Number) {
-    val p1 = Point(x1.toFloat(), y1.toFloat())
-    val p2 = Point(x2.toFloat(), y2.toFloat())
-    bezier(p1.x, p1.y, p1.x, p1.y - abs(p1.y - p2.y) / 3, p2.x, p2.y + abs(p1.y - p2.y) / 3, p2.x, p2.y)
+fun PApplet.bezierSwitchVertical(x1: Float, y1: Float, x2: Float, y2: Float) {
+    bezier(x1, y1, x1, y1 - abs(y1 - y2) / 3, x2, y2 + abs(y1 - y2) / 3, x2, y2)
+}
+
+/**
+ * Assumes ([x1], [y1]) is left control point for a horizontal switch.
+ */
+fun PApplet.bezierSwitchHorizontal(x1: Float, y1: Float, x2: Float, y2: Float) {
+    bezier(x1, y1, x1 + abs(x1 - x2) / 3, y1, x2 - abs(x1 - x2) / 3, y2, x2, y2)
 }
 
 open class Tile(val position: Position) : Drawable {
@@ -110,7 +103,7 @@ open class Tile(val position: Position) : Drawable {
             layer {
                 translateToTile()
                 strokeWeight(12f)
-                rect(0, 0, TILE_WIDTH, TILE_HEIGHT)
+                rect(0f, 0f, TILE_WIDTH, TILE_HEIGHT)
             }
         }
     }
@@ -130,10 +123,10 @@ open class Tile(val position: Position) : Drawable {
 
 fun Compass16.relativeCoordinates(): Pair<Float, Float> = when (this) {
     NNE -> Pair(TILE_WIDTH * (2f / 3), 0f)
-    ENE -> Pair(TILE_WIDTH.toFloat(), TILE_HEIGHT * (1f / 3))
-    ESE -> Pair(TILE_WIDTH.toFloat(), TILE_HEIGHT * (2f / 3))
-    SSE -> Pair(TILE_WIDTH * (2f / 3), TILE_HEIGHT.toFloat())
-    SSW -> Pair(TILE_WIDTH * (1f / 3), TILE_HEIGHT.toFloat())
+    ENE -> Pair(TILE_WIDTH, TILE_HEIGHT * (1f / 3))
+    ESE -> Pair(TILE_WIDTH, TILE_HEIGHT * (2f / 3))
+    SSE -> Pair(TILE_WIDTH * (2f / 3), TILE_HEIGHT)
+    SSW -> Pair(TILE_WIDTH * (1f / 3), TILE_HEIGHT)
     WSW -> Pair(0f, TILE_HEIGHT * (2f / 3))
     WNW -> Pair(0f, TILE_HEIGHT * (1f / 3))
     NNW -> Pair(TILE_WIDTH * (1f / 3), 0f)
@@ -149,7 +142,7 @@ class InputTile(position: Position, val state: Boolean, val outputs: Set<Compass
                 strokeWeight(8f)
                 outputs.forEach {
                     val (x, y) = it.relativeCoordinates()
-                    bezierSwitch(x, y, centerX, centerY)
+                    bezierSwitchVertical(x, y, centerX, centerY)
                 }
                 val img = if (state)
                     loadImage("button-on.png")
@@ -172,7 +165,7 @@ class OutputTile(position: Position, val state: Boolean, val inputs: Set<Compass
                 strokeWeight(8f)
                 inputs.forEach {
                     val (x, y) = it.relativeCoordinates()
-                    bezierSwitch(centerX, centerY, x, y)
+                    bezierSwitchVertical(centerX, centerY, x, y)
                 }
                 imageMode(PConstants.CENTER)
                 if (state)
@@ -184,11 +177,104 @@ class OutputTile(position: Position, val state: Boolean, val inputs: Set<Compass
     }
 }
 
+operator fun Compass16.inc(): Compass16 = when (this) {
+    NNE -> ENE
+    ENE -> ESE
+    ESE -> SSE
+    SSE -> SSW
+    SSW -> WSW
+    WSW -> WNW
+    WNW -> NNW
+    NNW -> NNE
+}
+
 fun Connection.draw(parent: PApplet) {
     with(parent) {
         layer {
+            noFill()
             strokeWeight(8f)
-            // TODO
+            val (from, to) = this@draw
+            val width = TILE_WIDTH
+            val height = TILE_HEIGHT
+            val width13 = width / 3f
+            val height13 = height / 3f
+            val width23 = 2 * width13
+            val height23 = 2 * height13
+
+            when (from) {
+                NNE -> when (to) {
+                    NNE, NNW -> throw IllegalArgumentException()
+                    ENE -> arc(width, 0f, 2 * width13, 2 * height13, PConstants.HALF_PI, PConstants.PI)
+                    ESE -> arc(width, 0f, 2 * width13, 2 * height23, PConstants.HALF_PI, PConstants.PI)
+                    SSE -> line(width23, 0f, width23, height)
+                    SSW -> bezierSwitchVertical(width13, height, width23, 0f)
+                    WSW -> arc(0f, 0f, 2 * width23, 2 * height23, 0f, PConstants.HALF_PI)
+                    WNW -> arc(0f, 0f, 2 * width23, 2 * height13, 0f, PConstants.HALF_PI)
+                }
+                ENE -> when (to) {
+                    ENE, ESE -> throw IllegalArgumentException()
+                    NNE -> arc(width, 0f, 2 * width13, 2 * height13, PConstants.HALF_PI, PConstants.PI)
+                    SSE -> arc(width, height, 2 * width13, 2 * height23, PConstants.PI, PConstants.PI + PConstants.HALF_PI)
+                    SSW -> arc(width, height, 2 * width23, 2 * height23, PConstants.PI, PConstants.PI + PConstants.HALF_PI)
+                    WSW -> bezierSwitchHorizontal(0f, height23, width, height13)
+                    WNW -> line(0f, height13, width, height13)
+                    NNW -> arc(width, 0f, 2 * width23, 2 * height13, PConstants.HALF_PI, PConstants.PI)
+                }
+                ESE -> when (to) {
+                    ESE, ENE -> throw IllegalArgumentException()
+                    NNE -> arc(width, 0f, 2 * width13, 2 * height23, PConstants.HALF_PI, PConstants.PI)
+                    SSE -> arc(width, height, 2 * width13, 2 * height13, PConstants.PI, PConstants.PI + PConstants.HALF_PI)
+                    SSW -> arc(width, height, 2 * width23, 2 * height13, PConstants.PI, PConstants.PI + PConstants.HALF_PI)
+                    WSW -> line(0f, height23, width, height23)
+                    WNW -> bezierSwitchHorizontal(0f, height13, width, height23)
+                    NNW -> arc(width, 0f, 2 * width23, 2 * height23, PConstants.HALF_PI, PConstants.PI)
+                }
+                SSE -> when (to) {
+                    SSE, SSW -> throw IllegalArgumentException()
+                    NNE -> line(width23, 0f, width23, height)
+                    ENE -> arc(width, height, 2 * width13, 2 * height23, PConstants.PI, PConstants.PI + PConstants.HALF_PI)
+                    ESE -> arc(width, height, 2 * width13, 2 * height13, PConstants.PI, PConstants.PI + PConstants.HALF_PI)
+                    WSW -> arc(0f, height, 2 * width23, 2 * height13, PConstants.PI + PConstants.HALF_PI, PConstants.TWO_PI)
+                    WNW -> arc(0f, height, 2 * width23, 2 * height23, PConstants.PI + PConstants.HALF_PI, PConstants.TWO_PI)
+                    NNW -> bezierSwitchVertical(width23, height, width13, 0f)
+                }
+                SSW -> when (to) {
+                    SSW, SSE -> throw IllegalArgumentException()
+                    NNE -> bezierSwitchVertical(width13, height, width23, 0f)
+                    ENE -> arc(width, height, 2 * width23, 2 * height23, PConstants.PI, PConstants.PI + PConstants.HALF_PI)
+                    ESE -> arc(width, height, 2 * width23, 2 * height13, PConstants.PI, PConstants.PI + PConstants.HALF_PI)
+                    WSW -> arc(0f, height, 2 * width13, 2 * height13, PConstants.PI + PConstants.HALF_PI, PConstants.TWO_PI)
+                    WNW -> arc(width, height, 2 * width13, 2 * height23, PConstants.PI + PConstants.HALF_PI, PConstants.TWO_PI)
+                    NNW -> line(width13, 0f, width13, height)
+                }
+                WSW -> when (to) {
+                    WSW, WNW -> throw IllegalArgumentException()
+                    NNE -> arc(0f, 0f, 2 * width23, 2 * height23, 0f, PConstants.HALF_PI)
+                    ENE -> bezierSwitchHorizontal(0f, height23, width, height13)
+                    ESE -> line(0f, height23, width, height23)
+                    SSE -> arc(0f, height, 2 * width23, 2 * height13, PConstants.PI + PConstants.HALF_PI, PConstants.TWO_PI)
+                    SSW -> arc(0f, height, 2 * width13, 2 * height13, PConstants.PI + PConstants.HALF_PI, PConstants.TWO_PI)
+                    NNW -> arc(0f, 0f, 2 * width13, 2 * height23, 0f, PConstants.HALF_PI)
+                }
+                WNW -> when (to) {
+                    WSW, WNW -> throw IllegalArgumentException()
+                    NNE -> arc(0f, 0f, 2 * width23, 2 * height13, 0f, PConstants.HALF_PI)
+                    ENE -> line(0f, height13, width, height13)
+                    ESE -> bezierSwitchHorizontal(0f, height13, width, height23)
+                    SSE -> arc(0f, height, 2 * width23, 2 * height23, PConstants.PI + PConstants.HALF_PI, PConstants.TWO_PI)
+                    SSW -> arc(0f, height, 2 * width13, 2 * height23, PConstants.PI + PConstants.HALF_PI, PConstants.TWO_PI)
+                    NNW -> arc(0f, 0f, 2 * width13, 2 * height13, 0f, PConstants.HALF_PI)
+                }
+                NNW -> when (to) {
+                    NNW, NNE -> throw IllegalArgumentException()
+                    ENE -> arc(width, 0f, 2 * width23, 2 * height13, PConstants.HALF_PI, PConstants.PI)
+                    ESE -> arc(width, 0f, 2 * width23, 2 * height23, PConstants.HALF_PI, PConstants.PI)
+                    SSE -> bezierSwitchVertical(width23, height, width13, 0f)
+                    SSW -> line(width13, 0f, width13, height)
+                    WSW -> arc(0f, 0f, 2 * width13, 2 * height23, 0f, PConstants.HALF_PI)
+                    WNW -> arc(0f, 0f, 2 * width13, 2 * height13, 0f, PConstants.HALF_PI)
+                }
+            }
         }
     }
 }
@@ -220,9 +306,9 @@ fun Compass16.drawInput(parent: PApplet, centerX: Float, centerY: Float) {
                 }
                 NNW, NNE -> {
                     val (x, y) = this@drawInput.relativeCoordinates()
-                    bezierSwitch(centerX, centerY, x, y)
+                    bezierSwitchVertical(centerX, centerY, x, y)
                 }
-                ENE -> arc(TILE_WIDTH.toFloat(), centerY, 2 * centerX, TILE_HEIGHT / 3f, PI, PI + HALF_PI)
+                ENE -> arc(TILE_WIDTH, centerY, 2 * centerX, TILE_HEIGHT / 3f, PI, PI + HALF_PI)
                 else -> {
                 }
             }
@@ -236,11 +322,11 @@ fun Compass16.drawOutput(parent: PApplet, centerX: Float, centerY: Float) {
             noFill()
             when (this@drawOutput) {
                 ESE -> {
-                    arc(TILE_WIDTH.toFloat(), centerY, 2 * centerX, TILE_HEIGHT / 3f, PConstants.HALF_PI, PI)
+                    arc(TILE_WIDTH, centerY, 2 * centerX, TILE_HEIGHT / 3f, PConstants.HALF_PI, PI)
                 }
                 SSE, SSW -> {
                     val (x, y) = this@drawOutput.relativeCoordinates()
-                    bezierSwitch(x, y, centerX, centerY)
+                    bezierSwitchVertical(x, y, centerX, centerY)
                 }
                 WSW -> arc(0f, centerY, 2 * centerX, TILE_HEIGHT / 3f, 0f, PConstants.HALF_PI)
                 else -> {
